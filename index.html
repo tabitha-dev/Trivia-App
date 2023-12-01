@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <style>
+      body::before {
+          content: '';
+          position: fixed;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: url('blob.svg') no-repeat center center;
+          background-size: cover;
+          z-index: -1;
+          animation: float 10s ease-in-out infinite;
+      }
+
+      @keyframes float {
+          0%, 100% { transform: translateY(0) translateX(0); }
+          50% { transform: translateY(-5%) translateX(5%); }
+      }
+      /* Reset default browser styles */
+      body, h1, ul {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+      }
+
+      /* Set a modern background color with gradient */
+      body {
+          background: linear-gradient(135deg, #1e5799, #2989d8, #207cca);
+          background-size: 200% 200%;
+          animation: gradientBG 12s linear infinite;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          color: #fff;
+      }
+
+      @keyframes gradientBG {
+          0% {
+              background-position: 0% 50%;
+          }
+          50% {
+              background-position: 100% 50%;
+          }
+          100% {
+              background-position: 0% 50%;
+          }
+      }
+
+      /* Center the quiz container */
+      .quiz-container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: rgba(255, 255, 255, 0.95);
+          box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+          border-radius: 10px;
+          text-align: center;
+      }
+
+      /* Style the quiz header with a gradient text */
+      h1 {
+          font-size: 32px;
+          margin-bottom: 20px;
+          color: #007bff;
+          background: -webkit-linear-gradient(45deg, #007bff, #00bfff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      }
+
+      /* Style the question with a subtle box shadow */
+      .question {
+          font-size: 24px;
+          margin-bottom: 20px;
+          color: #333;
+          text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Style the answer choices with a hover animation */
+      .answers {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+      }
+
+      .answer-choice {
+          color: #333;
+          padding: 10px;
+          background-color: #fff;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s, transform 0.2s;
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .answer-choice:hover {
+          background-color: #f5f5f5;
+          transform: translateY(-2px);
+      }
+
+      .correct-answer {
+          font-size: 18px;
+          color: #5cb85c;
+          margin-top: 10px;
+          background-color: #fff;
+          padding: 10px;
+          border-radius: 5px;
+      }
+
+      /* Style for the correct answer display */
+      .correct-answer-display {
+          font-size: 18px;
+          color: #333;
+          margin-top: 10px;
+      }
+
+      .correct-answer-display span {
+          color: #5cb85c;
+      }
+
+      /* Highlight the correct answer with a green gradient */
+      .correct {
+          background: linear-gradient(135deg, #5cb85c, #4cae4c);
+          color: #fff;
+      }
+      /* Style for the incorrect answer display */
+      .incorrect-answer-display {
+          font-size: 18px;
+          color: #333;
+          margin-top: 10px;
+      }
+
+      .incorrect-answer-display span {
+          color: #d9534f; /* A red color to indicate incorrectness */
+      }
+
+      /* Highlight the incorrect answer with a red gradient */
+      .incorrect {
+          background: linear-gradient(135deg, #d9534f, #c9302c);
+          color: #fff;
+      }
+
+      /* Style the "Next" button with a gradient background */
+      #next-button {
+          background: linear-gradient(45deg, #007bff, #00bfff);
+          color: #fff;
+          padding: 12px 24px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 18px;
+          transition: background 0.3s;
+      }
+
+      #next-button:hover {
+          background: linear-gradient(45deg, #0056b3, #00a2e0);
+      }
+
+      /* Add this CSS inside a media query for smaller screens */
+      @media (max-width: 768px) {
+          .quiz-container {
+              max-width: 90%;
+          }
+      }
+
+      /* Apply animation to elements */
+      .question, .answer-choice {
+          opacity: 0;
+          transform: translateY(-20px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+
+      .question, .answer-choice {
+          opacity: 1;
+          transform: translateY(0);
+      }
+
+      /* Countdown animation */
+      .timer {
+          font-size: 18px;
+          color: #333;
+          margin-top: 10px;
+          transition: color 0.5s;
+      }
+
+      .timer.expiring {
+          color: #ff0000;
+      }
+
+      /* Style for the score display */
+      .score-display {
+          font-size: 18px;
+          color: #333;
+          margin-top: 10px;
+      }
+
+      /* Style for the feedback message */
+      .feedback-message {
+          font-size: 18px;
+          color: #333;
+          margin-top: 10px;
+      }
+
+      /* Style for correct feedback message */
+      .correct-feedback {
+          color: #5cb85c;
+      }
+
+      /* Style for incorrect feedback message */
+      .incorrect-feedback {
+          color: #d9534f;
+      }
+      .incorrect {
+          background-color: #d9534f;
+          color: #fff;
+      }
+      .quiz-container, .quiz-container * {
+          color: #333; /* Or any other color you prefer */
+      }
+      #restart-button {
+          background: linear-gradient(45deg, #f85032, #e73827);
+          color: #fff;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 16px;
+          transition: background-color 0.3s, box-shadow 0.3s;
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      #restart-button:hover {
+          background: linear-gradient(45deg, #e73827, #f85032);
+          box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.3);
+      }
+      /* Media Query for Smaller Screens */
+      @media (max-width: 768px) {
+          .quiz-container { max-width: 90%; }
+      }
+</style>
+
+
+   
+    <title>Trivia</title>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Trivia</h1>
+        <div class="question"></div>
+        <div class="answers">
+            <!-- Create answer choice elements here -->
+        </div>
+        <p class="correct-answer"></p> 
+        <button id="next-button">Next</button>
+        <div class="timer">Time Left: <span id="timer">30</span> seconds</div>
+        <p class="score-display">Score: 0</p>
+        <div class="correct-answer-display">
+            Correct Answer: <span id="correct-answer"></span>
+        </div>
+    </div>
+    <script src="script.js"></script>
+ <script>
+// Function to get a message based on the user's score
+function getScoreMessage(score) {
+    if (score === questions.length) {
+        return "Perfect! You got all the answers right!";
+    } else if (score >= questions.length / 2) {
+        return "Great job! You did well!";
+    } else {
+        return "You can do better next time!";
+    }
+}
+
+const apiUrl = 'https://opentdb.com/api.php?amount=10&type=multiple';
+
+const quizContainer = document.querySelector('.quiz-container');
+const questionElement = document.querySelector('.question');
+const answersElement = document.querySelector('.answers');
+const nextButton = document.getElementById('next-button');
+const timerElement = document.getElementById('timer');
+const correctAnswerDisplay = document.getElementById('correct-answer');
+
+let timer = 30; 
+let questions = [];
+let currentQuestionIndex = 0;
+let score = 0;
+
+function updateScore() {
+    score++;
+    const scoreDisplay = document.querySelector('.score-display');
+    scoreDisplay.textContent = `Score: ${score}`;
+}
+
+function startTimer() {
+    const countdown = setInterval(function () {
+        timerElement.textContent = timer;
+        if (timer <= 5) {
+            timerElement.classList.add('expiring');
+        } else {
+            timerElement.classList.remove('expiring');
+        }
+        timer--;
+        if (timer < 0) {
+            clearInterval(countdown);
+            // Handle timeout here
+        }
+    }, 1000);
+}
+
+function fetchQuestions() {
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.results && Array.isArray(data.results)) {
+                questions = data.results;
+                displayQuestion();
+            } else {
+                console.error('Unexpected API response format');
+            }
+        })
+        .catch((error) => console.error('Error fetching questions:', error));
+}
+
+function displayQuestion() {
+    if (currentQuestionIndex < questions.length) {
+        const currentQuestion = questions[currentQuestionIndex];
+        questionElement.innerHTML = currentQuestion.question;
+        answersElement.innerHTML = '';
+
+        let allAnswers = [...currentQuestion.incorrect_answers];
+        allAnswers.push(currentQuestion.correct_answer);
+        allAnswers.sort(() => Math.random() - 0.5); // Shuffle answers
+
+        allAnswers.forEach((answer) => {
+            const answerChoice = document.createElement('div');
+            answerChoice.className = 'answer-choice';
+            answerChoice.innerHTML = answer;
+            answersElement.appendChild(answerChoice);
+        });
+
+        correctAnswerDisplay.textContent = '';
+    } else {
+        displayResult();
+    }
+}
+
+answersElement.addEventListener('click', (event) => {
+    if (event.target.classList.contains('answer-choice')) {
+        if (currentQuestionIndex < questions.length) {
+            const selectedAnswer = event.target.innerHTML;
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedAnswer === currentQuestion.correct_answer;
+            correctAnswerDisplay.textContent = `Correct Answer: ${currentQuestion.correct_answer}`;
+
+            if (isCorrect) {
+                event.target.classList.add('correct');
+                updateScore();
+            } else {
+                event.target.classList.add('incorrect');
+            }
+
+            currentQuestionIndex++;
+            setTimeout(() => {
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    displayResult();
+                }
+            }, 1000);
+        }
+    }
+});
+
+nextButton.addEventListener('click', () => {
+    if (currentQuestionIndex < questions.length) {
+        displayQuestion();
+    } else {
+        displayResult();
+    }
+});
+
+function displayResult() {
+    quizContainer.innerHTML = '<h1>Quiz Completed!</h1>';
+    quizContainer.innerHTML += `<p>Your final score is: ${score} out of ${questions.length}</p>`;
+    const percentage = (score / questions.length) * 100;
+    quizContainer.innerHTML += `<p>Percentage: ${percentage.toFixed(2)}%</p>`;
+    quizContainer.innerHTML += `<p>${getScoreMessage(score)}</p>`;
+    quizContainer.innerHTML += `<button id='restart-button'>Retake Quiz</button>`;
+
+    const restartButton = document.getElementById('restart-button');
+    restartButton.addEventListener('click', () => {
+        location.reload();
+    });
+}
+
+fetchQuestions();
+startTimer();
+</script>
+
+
+
+</body>
+</html>
